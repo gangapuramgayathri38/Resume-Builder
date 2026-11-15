@@ -27,8 +27,8 @@ export const enhanceProfessionalSummary = async (req, res) => {
             ]
         });
 
-        const enhancedSummary = response.choices[0].message.content;
-        return res.status(200).json({ enhancedSummary });
+        const enhancedContent = response.choices[0].message.content;
+        return res.status(200).json({ enhancedContent });
 
     } catch (error) {
         return res.status(400).json({ message: error.message });
@@ -61,8 +61,8 @@ export const enhanceJobDescription = async (req, res) => {
             ]
         });
 
-        const enhancedSummary = response.choices[0].message.content;
-        return res.status(200).json({ enhancedSummary });
+        const enhancedContent = response.choices[0].message.content;
+        return res.status(200).json({ enhancedContent });
 
     } catch (error) {
         return res.status(400).json({ message: error.message });
@@ -103,7 +103,7 @@ export const uploadResume = async (req, res) => {
                 linkedin: { type: String, default: '' },
                 website: { type: String, default: '' },
             },
-            experiences: [{
+            experience: [{
                 company: { type: String, default: '' },
                 position: { type: String, default: '' },
                 start_date: { type: String, default: '' },
@@ -111,7 +111,7 @@ export const uploadResume = async (req, res) => {
                 description: { type: String, default: '' },
                 is_current: { type: Boolean, default: false }
             }],
-            projects: [{
+            project: [{
                 name: { type: String, default: '' },
                 description: { type: String, default: '' },
                 link: { type: String, default: '' }

@@ -11,7 +11,7 @@ import ExperienceForm from '../components/experienceForm'
 import EducationForm from '../components/EducationForm'
 import ProjectForm from '../components/ProjectForm'
 import SkillsForm from '../components/skillsForm'
-import { ArrowLeftIcon, User, FileText, Briefcase, GraduationCap, FolderIcon, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeftIcon, Home, User, FileText, Briefcase, GraduationCap, FolderIcon, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Share2Icon, EyeIcon, EyeOffIcon, DownloadIcon } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import api from '../configs/api'
@@ -47,7 +47,12 @@ const resumeBuilder = () => {
             );
 
             if (data.resume) {
-                setResumeData(data.resume);
+                setResumeData({
+                    ...data.resume,
+                    experience: data.resume.experience ?? data.resume.experiences ?? [],
+                    project: data.resume.project ?? data.resume.projects ?? [],
+                    education: data.resume.education ?? [],
+                });
                 document.title = data.resume.title;
             }
         } catch (error) {
@@ -134,18 +139,26 @@ const resumeBuilder = () => {
 
         } catch (error) {
             console.log("Error saving resume:", error);
-
+            throw error;
         }
     }
     return (
         <div>
             <div className="max-w-7xl mx-auto px-4 py-6">
-                <Link
-                    to={'/app'}
-                    className="inline-flex gap-2 items-center text-slate-500 hover:text-slate-700 transition-all"
-                >
-                    <ArrowLeftIcon className="size-4" /> Back to Dashboard
-                </Link>
+                <div className="flex items-center gap-5">
+                    <Link
+                        to={'/app'}
+                        className="inline-flex gap-2 items-center text-slate-500 hover:text-slate-700 transition-all"
+                    >
+                        <ArrowLeftIcon className="size-4" /> Back to Dashboard
+                    </Link>
+                    <Link
+                        to={'/'}
+                        className="inline-flex gap-2 items-center text-slate-500 hover:text-slate-700 transition-all"
+                    >
+                        <Home className="size-4" /> Home
+                    </Link>
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 pb-8">

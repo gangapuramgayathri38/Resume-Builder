@@ -129,7 +129,7 @@ export const updateResume = async (req, res) => {
         const resume = await Resume.findOneAndUpdate(
             { userId, _id: resumeId },
             { $set: resumeDataCopy },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!resume) {

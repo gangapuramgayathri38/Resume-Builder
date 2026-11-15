@@ -9,7 +9,7 @@ import Dashboard from './pages/dashboard'
 import ResumeBuilder from './pages/resumeBuilder'
 import Preview from './pages/preview'
 
-import { login, setLoading } from './app/features/authSlice'
+import { login, logout, setLoading } from './app/features/authSlice'
 import api from './configs/api'
 import { Toaster } from 'react-hot-toast'
 
@@ -35,6 +35,9 @@ const App = () => {
                 dispatch(setLoading(false))
             }
         } catch (error) {
+            if (error.response?.status === 401) {
+                dispatch(logout())
+            }
             dispatch(setLoading(false))
             console.log(error.message)
 

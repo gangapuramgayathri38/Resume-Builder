@@ -36,7 +36,7 @@ const ResumeSchema = new mongoose.Schema({
         linkedin: { type: String, default: '' },
         website: { type: String, default: '' },
     },
-    experiences: [{
+    experience: [{
         company: { type: String, default: '' },
         position: { type: String, default: '' },
         start_date: { type: String, default: '' },
@@ -44,7 +44,7 @@ const ResumeSchema = new mongoose.Schema({
         description: { type: String, default: '' },
         is_current: { type: Boolean, default: false }
     }],
-    projects: [{
+    project: [{
         name: { type: String, default: '' },
         description: { type: String, default: '' },
         link: { type: String, default: '' }

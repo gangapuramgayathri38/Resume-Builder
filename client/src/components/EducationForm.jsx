@@ -8,7 +8,7 @@ const EducationForm = ({ data, onChange }) => {
         const newEducation = {
             institution: "",
             degree: "",
-            field_of_study: "",
+            field: "",
             graduation_date: "",
             gpa: ""
         };
@@ -34,7 +34,7 @@ const EducationForm = ({ data, onChange }) => {
                     <p className='text-sm text-gray-500'>Add your educational details</p>
                 </div>
 
-                <button onClick={addEducation}
+                <button type="button" onClick={addEducation}
                     className='flex items-center gap-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors'
                 >
                     <Plus className="size-4" />
@@ -60,6 +60,7 @@ const EducationForm = ({ data, onChange }) => {
                                 <h4>Education #{index + 1}</h4>
 
                                 <button
+                                    type="button"
                                     onClick={() => removeEducation(index)}
                                     className="text-red-500 hover:text-red-700 transition-colors"
                                 >
