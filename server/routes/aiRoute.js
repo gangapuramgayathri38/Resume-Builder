@@ -1,15 +1,12 @@
+
 import express from "express";
 import protect from "../middlewares/authMiddleware.js";
 
-
 import {
     enhanceJobDescription,
-    enhanceProfessionalSummary
+    enhanceProfessionalSummary,
+    uploadResume
 } from "../controllers/aiController.js";
-
-import {
-    updateResume
-} from "../controllers/ResumeController.js";
 
 const aiRouter = express.Router();
 
@@ -28,7 +25,7 @@ aiRouter.post(
 aiRouter.post(
     "/upload-resume",
     protect,
-    updateResume
+    uploadResume
 );
 
 export default aiRouter;

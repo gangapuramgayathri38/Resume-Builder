@@ -13,8 +13,14 @@ import ProjectForm from '../components/ProjectForm'
 import SkillsForm from '../components/skillsForm'
 import { ArrowLeftIcon, User, FileText, Briefcase, GraduationCap, FolderIcon, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Share2Icon, EyeIcon, EyeOffIcon, DownloadIcon } from 'lucide-react'
+import { useSelector } from 'react-redux'
+import api from '../configs/api'
+import toast from 'react-hot-toast';
+
 const resumeBuilder = () => {
+
     const { resumeId } = useParams()
+    const { token } = useSelector(state => state.auth)
 
     const [resumeData, setResumeData] = useState({
         _id: '',
@@ -30,12 +36,24 @@ const resumeBuilder = () => {
         public: false,
     })
     const loadExistingResume = async () => {
-        const resume = dummyResumeData.find((r) => r._id === resumeId)
-        if (resume) {
-            setResumeData(resume)
-            document.title = resume.title + " - Resume Builder"
+        try {
+            const { data } = await api.get(
+                '/api/resumes/get/' + resumeId,
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+
+            if (data.resume) {
+                setResumeData(data.resume);
+                document.title = data.resume.title;
+            }
+        } catch (error) {
+            console.log(error.message);
         }
-    }
+    };
 
     const [activeSectionIndex, setActiveSectionIndex] = useState(0)
     const [removeBackground, setRemoveBackground] = useState(false)
@@ -52,7 +70,35 @@ const resumeBuilder = () => {
         loadExistingResume()
     }, [])
     const changeResumeVisibility = async () => {
-        setResumeData({ ...resumeData, public: !resumeData.public })
+        try {
+            const formData = new FormData();
+
+            formData.append("resumeId", resumeId);
+            formData.append(
+                "resumeData",
+                JSON.stringify({ public: !resumeData.public })
+            );
+
+            const { data } = await api.put(
+                '/api/resumes/update',
+                formData,
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+
+            setResumeData({
+                ...resumeData,
+                public: !resumeData.public
+            });
+
+            toast.success(data.message);
+        } catch (error) {
+            console.error("Error saving resume:", error);
+            toast.error(error?.response?.data?.message || error.message);
+        }
     }
 
     const handleShare = () => {
@@ -67,6 +113,29 @@ const resumeBuilder = () => {
     }
     const downloadResume = () => {
         window.print()
+    }
+    const saveResume = async () => {
+        try {
+            let updatedResumeData = structuredClone(resumeData)
+
+            // remove image from updatedResumeData
+            if (typeof resumeData.personal_info.image === 'object') {
+                delete updatedResumeData.personal_info.image
+            }
+
+            const formData = new FormData();
+            formData.append("resumeId", resumeId)
+            formData.append('resumeData', JSON.stringify(updatedResumeData))
+            removeBackground && formData.append("removeBackground", "yes");
+            typeof resumeData.personal_info.image === 'object' && formData.append("image", resumeData.personal_info.image)
+            const { data } = await api.put('/api/resumes/update', formData, { headers: { Authorization: token } });
+            setResumeData(data.resume);
+            toast.success(data.message);
+
+        } catch (error) {
+            console.log("Error saving resume:", error);
+
+        }
     }
     return (
         <div>
@@ -206,6 +275,11 @@ const resumeBuilder = () => {
 
                             </div>
                             <button
+                                onClick={() => toast.promise(saveResume(), {
+                                    loading: 'Saving...',
+                                    success: 'Resume saved successfully!',
+                                    error: 'Failed to save resume'
+                                })}
                                 className='bg-gradient-to-br from-green-100 to-green-200
     ring-green-300 text-green-600 ring hover:ring-green-400
     transition-all rounded-md px-6 py-2 mt-6 text-sm'

@@ -1,7 +1,27 @@
-import { Sparkles } from 'lucide-react'
+import { Loader2, Sparkles } from 'lucide-react'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import api from '../configs/api'
 
 const ProfessionalSummaryForm = ({ data, onChange, setResumeData }) => {
+    const { token } = useSelector(state => state.auth)
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    const generateSummary = async () => {
+        try {
+            setIsGenerating(true)
+            const prompt = `enhance my professional summary "${data}"`;
+            const response = await api.post('/api/ai/enhance-pro-sum', { userContent: prompt }, { headers: { Authorization: token } })
+
+            setResumeData(prev => ({ ...prev, professional_summary: response.data.enhancedContent }))
+        } catch (error) {
+            toast.error(error?.response?.data?.message || error.message)
+        } finally {
+            setIsGenerating(false)
+        }
+    }
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -15,13 +35,14 @@ const ProfessionalSummaryForm = ({ data, onChange, setResumeData }) => {
                     </p>
                 </div>
 
-                <button
+                <button disabled={isGenerating} onClick={generateSummary}
                     className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100
           text-purple-700 rounded hover:bg-purple-200 transition-colors
           disabled:opacity-50"
                 >
-                    <Sparkles className="size-4" />
-                    AI Enhance
+                    {isGenerating ? (<Loader2 className='size-4 animate-spin' />) : (<Sparkles className="size-4" />)}
+                    {isGenerating ? "Enhancing.." : "AI Enhance"}
+
                 </button>
             </div>
 

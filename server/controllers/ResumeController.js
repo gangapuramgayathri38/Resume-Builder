@@ -23,20 +23,36 @@ export const createResume = async (req, res) => {
 //controller for deleting a new resume
 //POST: /api/resumes/delete
 
+
 export const deleteResume = async (req, res) => {
     try {
         const userId = req.userId;
         const { resumeId } = req.params;
 
-        // delete the resume
-        await Resume.findOneAndDelete({ _id: resumeId, userId });
-        //return the deleted resume msg
-        return res.status(200).json({ message: "Resume deleted successfully", resume: deletedResume });
+        // Delete the resume and store the deleted document
+        const deletedResume = await Resume.findOneAndDelete({
+            _id: resumeId,
+            userId
+        });
+
+        if (!deletedResume) {
+            return res.status(404).json({
+                message: "Resume not found"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Resume deleted successfully",
+            resume: deletedResume
+        });
 
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).json({
+            message: error.message
+        });
     }
-}
+};
+
 
 //get user resume by id
 //GET: /api/resumes/:resumeId
@@ -81,9 +97,19 @@ export const getPublicResumeById = async (req, res) => {
 //PUT: /api/resumes/update
 export const updateResume = async (req, res) => {
     try {
+
         const userId = req.userId;
         const { resumeId, resumeData, removeBackground } = req.body;
         const image = req.file;
+
+        let resumeDataCopy;
+        if (typeof resumeData === "string") {
+            resumeDataCopy = await JSON.parse(resumeData)
+        } else {
+            resumeDataCopy = structuredClone(resumeData)
+
+        }
+
         if (image) {
             const imageBufferData = fs.createReadStream(image.path);
             const response = await imageKit.files.upload({
@@ -98,13 +124,19 @@ export const updateResume = async (req, res) => {
             resumeDataCopy.personal_info.image = response.url;
         }
 
-        let resumeDataCopy = JSON.parse(resumeData);
 
-        const resume = await Resume.findByIdAndUpdate(
+
+        const resume = await Resume.findOneAndUpdate(
             { userId, _id: resumeId },
-            resumeDataCopy,
+            { $set: resumeDataCopy },
             { new: true }
         );
+
+        if (!resume) {
+            return res.status(404).json({
+                message: 'Resume not found'
+            });
+        }
 
         return res.status(200).json({
             message: 'Saved successfully',
